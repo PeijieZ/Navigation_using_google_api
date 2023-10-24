@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Map route</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <link rel="stylesheet" type="text/css" href="./style.css" />
+  <script type="module" src="./index.ts"></script>
+</head>
+<body>
+  <div id="floating-panel">
+    <b>Start: </b>
+    <input type="text" id="start" placeholder="Enter start location" value="Kilburn Building">
+    <b>End: </b>
+    <input type="text" id="end" placeholder="Enter end location">
+  </div>
+  
+  <!-- Add input box for road name -->
+  <div>
+    <label for="roadName">Road Name:</label>
+    <input type="text" id="roadName" placeholder="Enter road name">
+  </div>
+  
+  <!-- Add button to add coordinates by road name -->
+  <button id="addCoord">Add Coordinates by Road Name</button>
+
+  <!-- Add textarea for the route -->
+  <div>
+    <label for="route">Route:</label>
+    <textarea id="route" placeholder="Paste route here"></textarea>
+  </div>
+
+  <!-- Add button to draw the route -->
+  <button id="drawRoute">Draw Route</button>
+
+  <div id="map"></div>
+
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=KEY&callback=initMap&v=weekly"
+    defer
+  ></script>
+</body>
+</html>
+
