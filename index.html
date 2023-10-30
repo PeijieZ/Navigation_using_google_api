@@ -23,14 +23,12 @@
   <!-- Add button to add coordinates by road name -->
   <button id="addCoord">Add Coordinates by Road Name</button>
 
-  <!-- Add textarea for the route -->
+  <!-- Add textarea for pasting route coordinates -->
   <div>
-    <label for="route">Route:</label>
-    <textarea id="route" placeholder="Paste route here"></textarea>
+    <label for="routeCoordinates">Paste Route Coordinates:</label>
+    <textarea id="routeCoordinates" placeholder="Paste coordinates in the format (lat, lng)"></textarea>
+    <button id="drawRoute">Draw Route</button>
   </div>
-
-  <!-- Add button to draw the route -->
-  <button id="drawRoute">Draw Route</button>
 
   <div id="map"></div>
 
@@ -40,4 +38,3 @@
   ></script>
 </body>
 </html>
-
