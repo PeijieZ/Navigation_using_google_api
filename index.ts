@@ -37,6 +37,10 @@ function initMap(): void {
     onChangeHandler
   );
 
+  // Add event listener for the "Draw Route" button
+  (document.getElementById("drawRoute") as HTMLElement).addEventListener("click", () => {
+    drawRouteFromCoordinates(map);
+  });
 }
 
 async function loadDirections(map: google.maps.Map): Promise<void> {
@@ -51,10 +55,29 @@ async function loadDirections(map: google.maps.Map): Promise<void> {
   }
 }
 
+const routeColors: string[] = [
+  '#FF0000', // Red
+  '#00FF00', // Green
+  '#0000FF', // Blue
+  // Add more colors as needed
+];
+
+let currentColorIndex = 0;
+
+// Function to get the color for a complete route
+function getColorForRoute(): string {
+  const color = routeColors[currentColorIndex];
+  currentColorIndex = (currentColorIndex + 1) % routeColors.length;
+  return color;
+}
+
+// Modify the parseAndDisplayDirections function
 async function parseAndDisplayDirections(map: google.maps.Map, routeText: string): Promise<void> {
   const regex = /\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)/g;
   let match;
   const parsedCoordinates: google.maps.LatLngLiteral[] = [];
+
+  const routeColor = getColorForRoute(); // Get the color for the complete route
 
   while ((match = regex.exec(routeText)) !== null) {
     const lat = parseFloat(match[1]);
@@ -66,39 +89,38 @@ async function parseAndDisplayDirections(map: google.maps.Map, routeText: string
   }
 
   if (parsedCoordinates.length >= 2) {
-    // Display directions for each pair of consecutive points
-    for (let i = 0; i < parsedCoordinates.length - 1; i++) {
-      await calculateAndDisplayDirections(
-        map,
-        parsedCoordinates[i],
-        parsedCoordinates[i + 1]
-      );
-    }
+    await calculateAndDisplayDirections(map, parsedCoordinates, routeColor);
   } else {
     window.alert("At least two valid coordinates are required for directions.");
   }
 }
 
+// Modify the calculateAndDisplayDirections function to accept parsed coordinates
 async function calculateAndDisplayDirections(
   map: google.maps.Map,
-  origin: google.maps.LatLngLiteral,
-  destination: google.maps.LatLngLiteral,
-  routeColor: string = '#FF0000' // Default color is red
+  coordinates: google.maps.LatLngLiteral[],
+  routeColor: string
 ): Promise<void> {
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer({
     map,
-    suppressMarkers: true, // This will hide the start and end markers
+    suppressMarkers: true,
     polylineOptions: {
       strokeColor: routeColor,
     },
   });
 
+  const waypoints = coordinates.slice(1, -1).map(coord => ({
+    location: new google.maps.LatLng(coord.lat, coord.lng),
+    stopover: false,
+  }));
+
   return new Promise<void>((resolve, reject) => {
     directionsService.route(
       {
-        origin,
-        destination,
+        origin: coordinates[0],
+        destination: coordinates[coordinates.length - 1],
+        waypoints,
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (response, status) => {
@@ -114,7 +136,6 @@ async function calculateAndDisplayDirections(
   });
 }
 
-
 function parseCoordinateString(coordString: string): google.maps.LatLngLiteral | null {
   const match = coordString.match(/\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)/);
 
@@ -129,7 +150,6 @@ function parseCoordinateString(coordString: string): google.maps.LatLngLiteral |
 
   return null;
 }
-
 
 function calculateAndDisplayRoute(
   directionsService: google.maps.DirectionsService,
@@ -151,6 +171,18 @@ function calculateAndDisplayRoute(
     .catch((e) => window.alert("Directions request failed due to " + status));
 }
 
+// Function to handle drawing directions from pasted coordinates
+async function drawRouteFromCoordinates(map: google.maps.Map): Promise<void> {
+  const textarea = document.getElementById("routeCoordinates") as HTMLTextAreaElement;
+  const routeText = textarea.value;
+
+  if (routeText.trim() === "") {
+    window.alert("Please enter route coordinates in the specified format.");
+    return;
+  }
+
+  await parseAndDisplayDirections(map, routeText);
+}
 
 declare global {
   interface Window {
