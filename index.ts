@@ -83,11 +83,12 @@ async function calculateAndDisplayDirections(
   map: google.maps.Map,
   origin: google.maps.LatLngLiteral,
   destination: google.maps.LatLngLiteral,
-  routeColor: string = '#FF0000' // Default color is blue
+  routeColor: string = '#FF0000' // Default color is red
 ): Promise<void> {
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer({
     map,
+    suppressMarkers: true, // This will hide the start and end markers
     polylineOptions: {
       strokeColor: routeColor,
     },
